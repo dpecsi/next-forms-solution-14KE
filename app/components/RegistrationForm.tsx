@@ -11,8 +11,9 @@ function validate(data: Form): Errors {
   const result: Errors = {};
   if (data.name.trim().length == 0) result.name = "A név megadása kötelező";
   else if (data.name.trim().length < 3) result.name = "A névnek legalább 3 karakternek kell lennie";
-  if(data.email.trim().length == 0) result.email = "Az email cím megadása kötelező"
-  else if(!data.email.trim().includes("@")) result.email = "Az email címnek tartalmaznia kell @ jelet"
+  if (data.email.trim().length == 0) result.email = "Az email cím megadása kötelező";
+  else if (!data.email.trim().includes("@"))
+    result.email = "Az email címnek tartalmaznia kell @ jelet";
   if (data.ticketId === "") result.ticketId = "Válassz jegytípust";
   if (data.guests < 0 || data.guests > 5) result.guests = "Legfeljebb 5 kísérő lehet";
   if (!data.accepted) result.accepted = "El kell fogadnod a részvételi feltételeket";
@@ -62,7 +63,7 @@ export default function RegistrationForm({ onAdd }: RegistrationFormProps) {
     };
     onAdd(entry);
     resetForm();
-    toast.success("Jelentkezés sikeresen leadva");
+    toast.success(`Köszönjük ${entry.name}! Fizetendő: ${entry.total} Ft`);
   };
 
   const resetForm = () => {
@@ -163,8 +164,11 @@ export default function RegistrationForm({ onAdd }: RegistrationFormProps) {
       {/* Élő összegzés: azonnal frissül, ahogy a jegytípus vagy a kísérők száma változik. */}
       {form.ticketId && (
         <p className="rounded-xl bg-gray-100 p-3 text-sm">
-          Fizetendő: <span className="font-bold tabular-nums">{TICKETS.find((v) => v.id == form.ticketId)!.price * (1 + form.guests)} Ft</span> ({TICKETS.find((v) => v.id == form.ticketId)!.price} Ft x{" "}
-          {1 + form.guests} fő)
+          Fizetendő:{" "}
+          <span className="font-bold tabular-nums">
+            {TICKETS.find((v) => v.id == form.ticketId)!.price * (1 + form.guests)} Ft
+          </span>{" "}
+          ({TICKETS.find((v) => v.id == form.ticketId)!.price} Ft x {1 + form.guests} fő)
         </p>
       )}
 
