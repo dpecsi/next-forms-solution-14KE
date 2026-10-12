@@ -29,6 +29,8 @@ export default function RegistrationForm({ onAdd }: RegistrationFormProps) {
   // kísérők számából minden rendereléskor újraszámoljuk (az élő összegzés - bónusz - is ezt mutatja).
   const [errors, setErrors] = useState<Errors>({});
   const [form, setForm] = useState(EMPTY_FORM);
+  const selectedTicket = TICKETS.find((t) => t.id == form.ticketId);
+  const totalPrice = selectedTicket == undefined ? 0 : selectedTicket.price * (1 + form.guests);
 
   // --- 3. lépés: EGYETLEN eseménykezelő az összes mezőhöz ---
   // A mező name attribútuma adja meg, melyik kulcsot kell frissíteni: a [name] szögletes
@@ -53,15 +55,20 @@ export default function RegistrationForm({ onAdd }: RegistrationFormProps) {
       toast.error("Az űrlap hibás, javítsd a jelölt mezőket!");
       return;
     }
-    const ticket = TICKETS.find((v) => v.id == form.ticketId)!;
     const entry: Entry = {
       id: e.timeStamp,
       name: form.name,
-      ticketLabel: ticket.label,
+      ticketLabel: selectedTicket?.label ?? "",
       guests: 1 + form.guests,
-      total: ticket.price * (1 + form.guests),
+      total: totalPrice,
     };
-    onAdd(entry);
+    onAdd({
+      id: e.timeStamp,
+      name: form.name,
+      ticketLabel: selectedTicket?.label ?? "",
+      guests: 1 + form.guests,
+      total: totalPrice,
+    });
     resetForm();
     toast.success(`Köszönjük ${entry.name}! Fizetendő: ${entry.total} Ft`);
   };
@@ -164,11 +171,8 @@ export default function RegistrationForm({ onAdd }: RegistrationFormProps) {
       {/* Élő összegzés: azonnal frissül, ahogy a jegytípus vagy a kísérők száma változik. */}
       {form.ticketId && (
         <p className="rounded-xl bg-gray-100 p-3 text-sm">
-          Fizetendő:{" "}
-          <span className="font-bold tabular-nums">
-            {TICKETS.find((v) => v.id == form.ticketId)!.price * (1 + form.guests)} Ft
-          </span>{" "}
-          ({TICKETS.find((v) => v.id == form.ticketId)!.price} Ft x {1 + form.guests} fő)
+          Fizetendő: <span className="font-bold tabular-nums">{totalPrice} Ft</span> (
+          {selectedTicket ? selectedTicket.price : 0} Ft x {1 + form.guests} fő)
         </p>
       )}
 
